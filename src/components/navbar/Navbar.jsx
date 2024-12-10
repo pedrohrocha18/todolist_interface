@@ -1,14 +1,19 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import useAuthStore from "./authStore.js";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { isAuthenticated, logout } = useAuthStore();
+  const navigate = useNavigate();
 
-  const toggleMenu = () => {
-    setMenuOpen(!menuOpen);
-  };
+  const toggleMenu = () => setMenuOpen(!menuOpen);
+  const closeMenu = () => setMenuOpen(false);
 
-  const closeMenu = () => {
-    setMenuOpen(false);
+  const handleLogout = () => {
+    logout();
+    closeMenu();
+    navigate("/");
   };
 
   return (
@@ -38,8 +43,6 @@ const Navbar = () => {
           }`}
         />
       </button>
-
-      {/* Links */}
       <div
         className={`flex flex-col items-center lg:flex-row lg:items-center lg:static lg:opacity-100 lg:translate-x-0 absolute top-0 left-0 w-full h-screen bg-purple-900 lg:w-auto lg:h-auto transition-transform duration-300 ${
           menuOpen ? "translate-x-0" : "-translate-x-full"
@@ -52,20 +55,40 @@ const Navbar = () => {
         >
           Home
         </a>
-        <a
-          href="/register"
-          className="text-white text-lg py-2 px-4 hover:bg-blue-500 lg:hover:bg-transparent"
-          onClick={closeMenu}
-        >
-          Criar Conta
-        </a>
-        <a
-          href="/login"
-          className="text-white text-lg py-2 px-4 hover:bg-blue-500 lg:hover:bg-transparent"
-          onClick={closeMenu}
-        >
-          Login
-        </a>
+        {!isAuthenticated ? (
+          <>
+            <a
+              href="/register"
+              className="text-white text-lg py-2 px-4 hover:bg-blue-500 lg:hover:bg-transparent"
+              onClick={closeMenu}
+            >
+              Criar Conta
+            </a>
+            <a
+              href="/login"
+              className="text-white text-lg py-2 px-4 hover:bg-blue-500 lg:hover:bg-transparent"
+              onClick={closeMenu}
+            >
+              Login
+            </a>
+          </>
+        ) : (
+          <>
+            <a
+              href="/dashboard"
+              className="text-white text-lg py-2 px-4 hover:bg-blue-500 lg:hover:bg-transparent"
+              onClick={closeMenu}
+            >
+              Dashboard
+            </a>
+            <button
+              className="text-white text-lg py-2 px-4 hover:bg-red-500 lg:hover:bg-transparent"
+              onClick={handleLogout}
+            >
+              Sair
+            </button>
+          </>
+        )}
       </div>
     </nav>
   );

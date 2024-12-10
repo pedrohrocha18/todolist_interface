@@ -7,12 +7,14 @@ import "react-toastify/dist/ReactToastify.css";
 
 import useApi from "../../hooks/useApi";
 import { auth, signInWithEmailAndPassword } from "../../../firebaseConfig";
+import useAuthStore from "../../components/navbar/authStore";
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [failedAttempts, setFailedAttempts] = useState(0);
   const navigate = useNavigate();
   const { sendRequest } = useApi();
+  const login = useAuthStore((state) => state.login);
 
   const handleChange = (e) => {
     setFormData({
@@ -43,6 +45,8 @@ const Login = () => {
 
       if (responseData.message === "Login bem-sucedido!") {
         toast.success("Login efetuado com sucesso!");
+
+        login(responseData.token);
 
         localStorage.setItem("authToken", responseData.token);
 
