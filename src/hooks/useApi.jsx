@@ -30,8 +30,7 @@ const useAxios = () => {
       setData(response.data);
       return { data: response.data, status: response.status };
     } catch (err) {
-      setError(err?.response?.data || err.message); // Salva o erro detalhado
-      // Retorne um objeto para tratar no front
+      setError(err?.response?.data || err.message);
       return {
         error: err?.response?.data || err.message,
         status: err?.response?.status,

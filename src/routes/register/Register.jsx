@@ -53,33 +53,35 @@ const Register = () => {
     } catch (error) {
       const errorCode = error["error"];
 
-      switch (errorCode) {
-        case 400:
-          toast.error(
-            "Todos os campos são obrigatórios. Verifique os dados e tente novamente."
-          );
-          break;
-        case 406:
-          toast.error(
-            "A senha deve conter pelo menos 8 caracteres, incluindo letras maiúsculas, minúsculas, números e caracteres especiais."
-          );
-          break;
-        case 409:
-          toast.error("O e-mail já está em uso.");
-          break;
-        case 422:
-          toast.error("E-mail inválido.");
-          break;
+      console.log(errorCode)
 
-        case 500:
-          toast.error(
-            "Erro no servidor. Por favor, tente novamente mais tarde."
-          );
-          break;
-        default:
-          toast.error("Ocorreu um erro desconhecido. Tente novamente.");
-          break;
-      }
+      // switch (errorCode) {
+      //   case 400:
+      //     toast.error(
+      //       "Todos os campos são obrigatórios. Verifique os dados e tente novamente."
+      //     );
+      //     break;
+      //   case 406:
+      //     toast.error(
+      //       "A senha deve conter pelo menos 8 caracteres, incluindo letras maiúsculas, minúsculas, números e caracteres especiais."
+      //     );
+      //     break;
+      //   case 409:
+      //     toast.error("O e-mail já está em uso.");
+      //     break;
+      //   case 422:
+      //     toast.error("E-mail inválido.");
+      //     break;
+
+      //   case 500:
+      //     toast.error(
+      //       "Erro no servidor. Por favor, tente novamente mais tarde."
+      //     );
+      //     break;
+      //   default:
+      //     toast.error("Ocorreu um erro desconhecido. Tente novamente.");
+      //     break;
+      // }
     }
   };
 
