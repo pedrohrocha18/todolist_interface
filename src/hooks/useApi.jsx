@@ -1,13 +1,17 @@
 import { useState } from "react";
 import axios from "axios";
 
+// const api = axios.create({
+//   baseURL: "http://localhost:3001",
+// });
+
 const api = axios.create({
   baseURL: "https://todolist-back-rust.vercel.app",
 });
 
 const useAxios = () => {
   const [data, setData] = useState(null);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState();
 
   const sendRequest = async (
     endpoint,
@@ -24,10 +28,14 @@ const useAxios = () => {
         headers,
       });
       setData(response.data);
-      return response.data;
+      return { data: response.data, status: response.status };
     } catch (err) {
-      setError(err);
-      throw err;
+      setError(err?.response?.data || err.message); // Salva o erro detalhado
+      // Retorne um objeto para tratar no front
+      return {
+        error: err?.response?.data || err.message,
+        status: err?.response?.status,
+      };
     }
   };
 

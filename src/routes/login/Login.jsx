@@ -12,6 +12,7 @@ import useAuthStore from "../../components/navbar/authStore";
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [failedAttempts, setFailedAttempts] = useState(0);
+
   const navigate = useNavigate();
   const { sendRequest } = useApi();
   const login = useAuthStore((state) => state.login);
@@ -25,9 +26,25 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     const { email, password } = formData;
 
     try {
+      // Primeiro, verifica se o usuário existe na API
+      const response = await sendRequest("/user/exists", "POST", { email });
+
+      // Se o usuário não existir, redireciona para a criação de conta
+      if (response.status === 404) {
+        toast.error(
+          "Usuário não encontrado. Redirecionando para criar uma conta."
+        );
+        setTimeout(() => {
+          navigate("/register");
+        }, 4500);
+        return;
+      }
+
+      // Se o usuário existir, tenta fazer login com o Firebase
       const userCredential = await signInWithEmailAndPassword(
         auth,
         email,
@@ -43,9 +60,13 @@ const Login = () => {
         { "Content-Type": "application/json" }
       );
 
-      if (responseData.message === "Login bem-sucedido!") {
-        toast.success("Login efetuado com sucesso!");
+      if (responseData.error) {
+        throw { error: responseData.status };
+      }
 
+      // Verifica a resposta da API
+      if (responseData.status === 200) {
+        toast.success("Login efetuado com sucesso!");
         login(responseData.token);
 
         localStorage.setItem("authToken", responseData.token);
@@ -54,11 +75,21 @@ const Login = () => {
           navigate("/dashboard");
         }, 2200);
       } else {
-        throw new Error(responseData.error || "Erro inesperado no login.");
+        toast.error("Erro ao fazer login. Tente novamente.");
       }
     } catch (error) {
-      setFailedAttempts((prev) => prev + 1);
-      toast.error("E-mail ou senha inválidos! Tente novamente.");
+      const fireBaseError = error.message;
+
+      if (fireBaseError.includes("auth/invalid-credential")) {
+        setFailedAttempts((prev) => prev + 1);
+        toast.error("E-mail ou senhas inválidos!");
+      }
+
+      if (fireBaseError.includes("auth/too-many-requests")) {
+        toast.error(
+          "Você realizou muitas tentativas de login. Por favor, aguarde alguns minutos antes de tentar novamente."
+        );
+      }
 
       if (failedAttempts + 1 >= 3) {
         toast.info(

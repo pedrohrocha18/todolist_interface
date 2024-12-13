@@ -29,35 +29,56 @@ const Register = () => {
     const { name, email, password } = formData;
 
     try {
-      const responseData = await sendRequest(
+      const response = await sendRequest(
         "/user/register",
         "POST",
         { name, email, password },
         { "Content-Type": "application/json" }
       );
 
-      if (responseData.message === "Usuário adicionado com sucesso!") {
+      if (
+        response.status === 201 ||
+        response.message === "Usuário adicionado com sucesso!"
+      ) {
         toast.success("Usuário criado com sucesso!");
 
         setTimeout(() => {
           navigate("/login");
-        }, 2200);
+        }, 2500);
+
+        if (response.error) {
+          throw { error: response.status };
+        }
       }
     } catch (error) {
-      if (error.status === 400) {
-        toast.error(
-          "Todos os campos são obrigatórios ou o e-mail já está em uso. Verifique os dados e tente novamente."
-        );
-      } else if (error.status === 422) {
-        toast.error("E-mail inválido.");
-      } else if (error.status === 406) {
-        toast.error(
-          "A senha deve conter pelo menos 8 caracteres, incluindo letras maiúsculas, minúsculas, números e caracteres especiais."
-        );
-      } else if (error.status === 500) {
-        toast.error("Erro no servidor. Por favor, tente novamente mais tarde.");
-      } else {
-        toast.error("Ocorreu um erro desconhecido. Tente novamente.");
+      const errorCode = error["error"];
+
+      switch (errorCode) {
+        case 400:
+          toast.error(
+            "Todos os campos são obrigatórios. Verifique os dados e tente novamente."
+          );
+          break;
+        case 406:
+          toast.error(
+            "A senha deve conter pelo menos 8 caracteres, incluindo letras maiúsculas, minúsculas, números e caracteres especiais."
+          );
+          break;
+        case 409:
+          toast.error("O e-mail já está em uso.");
+          break;
+        case 422:
+          toast.error("E-mail inválido.");
+          break;
+
+        case 500:
+          toast.error(
+            "Erro no servidor. Por favor, tente novamente mais tarde."
+          );
+          break;
+        default:
+          toast.error("Ocorreu um erro desconhecido. Tente novamente.");
+          break;
       }
     }
   };
