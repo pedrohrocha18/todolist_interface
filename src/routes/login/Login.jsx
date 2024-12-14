@@ -82,7 +82,7 @@ const Login = () => {
 
       if (fireBaseError.includes("auth/invalid-credential")) {
         setFailedAttempts((prev) => prev + 1);
-        toast.error("E-mail ou senha inválidos!");
+        toast.error("Senha inválida!");
       }
 
       if (fireBaseError.includes("auth/too-many-requests")) {
