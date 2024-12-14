@@ -1,13 +1,13 @@
 import { useState } from "react";
 import axios from "axios";
 
-const api = axios.create({
-  baseURL: "http://localhost:3001",
-});
-
 // const api = axios.create({
-//   baseURL: "https://todolist-back-rust.vercel.app",
+//   baseURL: "http://localhost:3001",
 // });
+
+const api = axios.create({
+  baseURL: "https://todolist-back-rust.vercel.app",
+});
 
 const useAxios = () => {
   const [data, setData] = useState(null);
