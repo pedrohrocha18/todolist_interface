@@ -29,6 +29,14 @@ const Register = () => {
     const { name, email, password } = formData;
 
     try {
+      // Primeiro, verifica se o usuário existe na API
+      const findUser = await sendRequest("/user/exists", "POST", { email });
+
+      if (findUser.status === 200) {
+        toast.error("Já existe um usuário registrado com este e-mail.");
+        return;
+      }
+
       const response = await sendRequest(
         "/user/register",
         "POST",
