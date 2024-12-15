@@ -44,10 +44,7 @@ const Register = () => {
         { "Content-Type": "application/json" }
       );
 
-      if (
-        response.status === 201 ||
-        response.message === "Usuário adicionado com sucesso!"
-      ) {
+      if (response.status === 201) {
         toast.success("Usuário criado com sucesso!");
 
         setTimeout(() => {

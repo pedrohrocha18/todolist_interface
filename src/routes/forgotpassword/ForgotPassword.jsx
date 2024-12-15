@@ -32,38 +32,34 @@ const ForgotPassword = () => {
         headers
       );
 
-      console.log(responseData);
-
-      if (
-        responseData &&
-        responseData.message ===
-          "Link de redefinição de senha gerado com sucesso!"
-      ) {
+      if (responseData.status === 200) {
         toast.success("Link de redefinição de senha gerado com sucesso!");
         setTimeout(() => {
           navigate("/login");
         }, 2100);
       }
+
+      if (responseData.error) {
+        throw { error: responseData.status };
+      }
     } catch (error) {
-      if (error.response) {
-        switch (error.response.status) {
-          case 400:
-            toast.error("E-mail é obrigatório!");
-            break;
-          case 404:
-            toast.error("Usuário não encontrado!");
-            break;
-          case 500:
-            toast.error(
-              "Erro ao gerar link de redefinição de senha. Verifique o e-mail digitado!"
-            );
-            break;
-          default:
-            toast.error("Ocorreu um erro inesperado.");
-            break;
-        }
-      } else {
-        toast.error("Erro de conexão. Verifique sua rede.");
+      const errorCode = error["error"];
+
+      switch (errorCode) {
+        case 400:
+          toast.error("E-mail é obrigatório!");
+          break;
+        case 404:
+          toast.error("Usuário não encontrado!");
+          break;
+        case 500:
+          toast.error(
+            "Erro ao gerar link de redefinição de senha. Verifique o e-mail digitado!"
+          );
+          break;
+        default:
+          toast.error("Ocorreu um erro inesperado.");
+          break;
       }
     }
   };
