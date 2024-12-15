@@ -36,7 +36,7 @@ const ForgotPassword = () => {
         toast.success("Link de redefinição de senha gerado com sucesso!");
         setTimeout(() => {
           navigate("/login");
-        }, 2100);
+        }, 3300);
       }
 
       if (responseData.error) {
