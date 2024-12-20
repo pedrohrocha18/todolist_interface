@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import useApi from "../../hooks/useApi";
 import { useNavigate } from "react-router-dom";
+
 import { toast } from "react-toastify";
 import { ToastContainer } from "react-toastify";
+
+import Loader from "../../components/loader/Loader";
 
 const ForgotPassword = () => {
   const [formData, setFormData] = useState({
@@ -10,6 +13,8 @@ const ForgotPassword = () => {
   });
   const { sendRequest } = useApi();
   const navigate = useNavigate();
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
@@ -25,6 +30,7 @@ const ForgotPassword = () => {
     const headers = { "Content-Type": "application/json" };
 
     try {
+      setIsLoading(true);
       const responseData = await sendRequest(
         endpoint,
         method,
@@ -34,6 +40,7 @@ const ForgotPassword = () => {
 
       if (responseData.status === 200) {
         toast.success("Link de redefinição de senha gerado com sucesso!");
+        setIsLoading(false);
         setTimeout(() => {
           navigate("/login");
         }, 3300);
@@ -44,6 +51,7 @@ const ForgotPassword = () => {
       }
     } catch (error) {
       const errorCode = error["error"];
+      setIsLoading(false);
 
       switch (errorCode) {
         case 400:
@@ -101,6 +109,7 @@ const ForgotPassword = () => {
         </button>
       </form>
       <ToastContainer />
+      <Loader isLoading={isLoading} />
     </div>
   );
 };

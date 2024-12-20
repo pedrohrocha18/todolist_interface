@@ -9,9 +9,12 @@ import useApi from "../../hooks/useApi";
 import { auth, signInWithEmailAndPassword } from "../../../firebaseConfig";
 import useAuthStore from "../../components/navbar/authStore";
 
+import Loader from "../../components/loader/Loader";
+
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [failedAttempts, setFailedAttempts] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
   const { sendRequest } = useApi();
@@ -30,11 +33,13 @@ const Login = () => {
     const { email, password } = formData;
 
     try {
+      setIsLoading(true);
       // Primeiro, verifica se o usuário existe na API
       const response = await sendRequest("/user/exists", "POST", { email });
 
       // Se o usuário não existir, redireciona para a criação de conta
       if (response.status === 404) {
+        setIsLoading(false);
         toast.error(
           "Usuário não encontrado. Redirecionando para criar uma conta."
         );
@@ -60,6 +65,12 @@ const Login = () => {
         { "Content-Type": "application/json" }
       );
 
+      if (responseData) {
+        setIsLoading(false);
+      } else {
+        setIsLoading(true);
+      }
+
       if (responseData.error) {
         throw { error: responseData.status };
       }
@@ -81,17 +92,30 @@ const Login = () => {
       const fireBaseError = error.message;
 
       if (fireBaseError.includes("auth/invalid-credential")) {
+        setIsLoading(false);
         setFailedAttempts((prev) => prev + 1);
         toast.error("Senha inválida!");
       }
 
       if (fireBaseError.includes("auth/too-many-requests")) {
+        setIsLoading(false);
         toast.error(
           "Você realizou muitas tentativas de login. Por favor, aguarde alguns minutos antes de tentar novamente."
         );
       }
 
       if (failedAttempts + 1 >= 3) {
+        const email = document.querySelector("input[type='email']");
+        const password = document.querySelector("input[type='password']");
+        const button = document.querySelector("button[type='submit']");
+
+        if ((email, password, button)) {
+          email.disabled = true;
+          password.disabled = true;
+          button.disabled = true;
+        }
+
+        setIsLoading(false);
         toast.info(
           "Você tentou 3 vezes. Caso tenha esquecido sua senha, clique no link abaixo."
         );
@@ -160,6 +184,7 @@ const Login = () => {
         </div>
       )}
       <ToastContainer />
+      <Loader isLoading={isLoading} />
     </div>
   );
 };

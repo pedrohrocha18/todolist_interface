@@ -6,12 +6,16 @@ import { toast } from "react-toastify";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+import Loader from "../../components/loader/Loader";
+
 const Register = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
   });
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const { sendRequest } = useApi();
   const navigate = useNavigate();
@@ -29,11 +33,13 @@ const Register = () => {
     const { name, email, password } = formData;
 
     try {
+      setIsLoading(true);
       // Primeiro, verifica se o usuário existe na API
       const findUser = await sendRequest("/user/exists", "POST", { email });
 
       if (findUser.status === 200) {
         toast.error("Já existe um usuário registrado com este e-mail.");
+        setIsLoading(false);
         return;
       }
 
@@ -43,6 +49,12 @@ const Register = () => {
         { name, email, password },
         { "Content-Type": "application/json" }
       );
+
+      if (response) {
+        setIsLoading(false);
+      } else {
+        setIsLoading(true);
+      }
 
       if (response.status === 201) {
         toast.success("Usuário criado com sucesso!");
@@ -57,6 +69,8 @@ const Register = () => {
       }
     } catch (error) {
       const errorCode = error["error"];
+      
+      setIsLoading(false);
 
       switch (errorCode) {
         case 400:
@@ -75,7 +89,6 @@ const Register = () => {
         case 422:
           toast.error("E-mail inválido.");
           break;
-
         case 500:
           toast.error(
             "Erro no servidor. Por favor, tente novamente mais tarde."
@@ -152,6 +165,7 @@ const Register = () => {
         </form>
       </div>
       <ToastContainer />
+      <Loader isLoading={isLoading} />
     </div>
   );
 };
